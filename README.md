@@ -22,3 +22,23 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
+
+rails new relay -T --api
+cd relay/
+echo "relay" > .ruby-gemset
+echo "2.5.3" > .ruby-version
+cd ..
+cd relay/
+gem install bundler:2.1.4
+bundle install
+rails generate rspec:install
+git init
+git add .
+git commit -m "new project setup"
+git remote add origin git@github.com:amazing-jay/relay.git
+git push -u origin main
+rails db:setup
+bin/rails db:migrate
+rails g model User
+rails g model Hits user:references:index endpoint:text
+bin/rails db:migrate
