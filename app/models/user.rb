@@ -5,9 +5,20 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
   has_many :hits
 
-  def count_hits
-    start = Time.now.beginning_of_month
-    hits = hits.where('created_at > ?', start).count
-    return hits
+  #before_save :before_time_zone_change, if: :will_save_change_to_time_zone?
+  after_save :time_zone_changed_callback, if: :saved_change_to_time_zone?
+
+  private
+
+  # NOTE: its possible that users could receive quota limit errors in the short window of time between database save and keys flush
+  # its a very small window that isn't worth addressing at this time.
+  # def before_time_zone_change
+  #   ApiQuotaService.new(self, time_zone_was).persist_logs!
+  # end
+
+  def time_zone_changed_callback
+    old_time_zone = previous_changes['time_zone'].first
+
+    ApiQuotaService.new(self).flush_keys_to_new_timezone(old_time_zone)
   end
 end
