@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::API
+  protect_from_forgery prepend: true
+  before_action :authenticate_user!
   before_filter :user_quota
 
   def user_quota
